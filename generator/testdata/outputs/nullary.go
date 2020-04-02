@@ -2,13 +2,23 @@
 
 package outputs
 
-// Nullary is a test implementation of the somepackage.Nullary interface.
+import inputs "github.com/jmalloc/sham/generator/testdata/inputs"
+
+// Nullary is a test implementation of the inputs.Nullary interface.
 type Nullary struct {
-	MFunc func()
+	inputs.Nullary
+
+	// MethodFunc is a stub for the Method() method.
+	// If it is non-nil, it takes precedence over x.Nullary.Method().
+	MethodFunc func()
 }
 
-func (x *Nullary) M() {
-	if x.MFunc != nil {
-		x.MFunc()
+func (x *Nullary) Method() {
+	if x.MethodFunc != nil {
+		x.MethodFunc()
+	}
+
+	if x.Nullary != nil {
+		x.Nullary.Method()
 	}
 }

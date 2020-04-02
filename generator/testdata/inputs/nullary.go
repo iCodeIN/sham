@@ -1,5 +1,5 @@
 package inputs
 
 type Nullary interface {
-	M()
+	Method()
 }

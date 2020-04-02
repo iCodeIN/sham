@@ -98,7 +98,7 @@ func (v *visitor) visitTypeSpec(spec *ast.TypeSpec) (bool, error) {
 		return false, nil
 	}
 
-	_, ok := spec.Type.(*ast.InterfaceType)
+	iface, ok := spec.Type.(*ast.InterfaceType)
 	if !ok {
 		return false, nil
 	}
@@ -115,48 +115,64 @@ func (v *visitor) visitTypeSpec(spec *ast.TypeSpec) (bool, error) {
 		Id(spec.Name.Name).
 		StructFunc(func(grp *jen.Group) {
 			grp.Qual(v.InPackagePath, spec.Name.Name)
-			// for _, m := range iface.Methods.List {
-			// 	name := m.Names[0]
-			// 	if !name.IsExported() {
-			// 		continue
-			// 	}
 
-			// 	grp.Id(stubName(m)).
-			// 		Func().
-			// 		ParamsFunc(func(grp *jen.Group) {
-			// 		})
-			// }
+			for _, m := range iface.Methods.List {
+				name := m.Names[0]
+				if !name.IsExported() {
+					continue
+				}
+
+				n := stubName(m)
+
+				grp.Line()
+				grp.Commentf(
+					"%s is a stub for the %s() method.",
+					n,
+					name.Name,
+				)
+				grp.Commentf(
+					"If it is non-nil, it takes precedence over x.%s.%s().",
+					spec.Name.Name,
+					name.Name,
+				)
+				grp.Id(n).
+					Func().
+					ParamsFunc(func(grp *jen.Group) {
+					})
+			}
 		})
 
-	// for _, m := range iface.Methods.List {
-	// 	name := m.Names[0]
-	// 	if !name.IsExported() {
-	// 		continue
-	// 	}
+	for _, m := range iface.Methods.List {
+		name := m.Names[0]
+		if !name.IsExported() {
+			continue
+		}
 
-	// 	v.Out.
-	// 		Func().
-	// 		Params(
-	// 			jen.Id("x").
-	// 				Id("*" + spec.Name.Name),
-	// 		).
-	// 		Id(name.Name).
-	// 		ParamsFunc(func(grp *jen.Group) {
-	// 		}).
-	// 		BlockFunc(func(grp *jen.Group) {
-	// 			grp.
-	// 				If(
-	// 					jen.Id("x").Dot(stubName(m)).Op("!=").Nil(),
-	// 				).
-	// 				Block(
-	// 					jen.Id("x").Dot(stubName(m)).Call(),
-	// 				)
-	// 		})
-	// }
+		v.Out.
+			Func().
+			Params(
+				jen.Id("x").
+					Id("*" + spec.Name.Name),
+			).
+			Id(name.Name).
+			ParamsFunc(func(grp *jen.Group) {
+			}).
+			BlockFunc(func(grp *jen.Group) {
+				grp.If(jen.Id("x").Dot(stubName(m)).Op("!=").Nil()).
+					Block(
+						jen.Id("x").Dot(stubName(m)).Call(),
+					)
+				grp.Line()
+				grp.If(jen.Id("x").Dot(spec.Name.Name).Op("!=").Nil()).
+					Block(
+						jen.Id("x").Dot(spec.Name.Name).Dot(name.Name).Call(),
+					)
+			})
+	}
 
 	return false, nil
 }
 
 func stubName(n *ast.Field) string {
-	return n.Names[0].Name + "Stub"
+	return n.Names[0].Name + "Func"
 }
