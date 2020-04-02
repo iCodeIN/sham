@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"strings"
 
 	"github.com/jmalloc/sham/generator"
 	. "github.com/onsi/ginkgo"
@@ -32,9 +31,9 @@ var _ = Describe("func Generate()", func() {
 		entries = append(
 			entries,
 			Entry(
-				strings.TrimSuffix(fn, ".in"),
+				fn,
 				path.Join("testdata/inputs/", fn),
-				path.Join("testdata/outputs/", fn),
+				path.Join("testdata/outputs/", fn+".txt"),
 			),
 		)
 	}
