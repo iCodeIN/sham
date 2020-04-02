@@ -129,6 +129,7 @@ func (v *visitor) visitTypeSpec(t *ast.TypeSpec) (bool, error) {
 	for _, m := range iface.Methods.List {
 		if m.Names[0].IsExported() {
 			generateMethod(v.Out, t, m)
+			v.Out.Line()
 		}
 	}
 

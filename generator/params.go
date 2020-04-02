@@ -11,8 +11,18 @@ func generateParams(
 	out *jen.Group,
 	m *ast.Field,
 ) {
+	nt := nameTable{prefix: "i"}
+
 	for _, p := range m.Type.(*ast.FuncType).Params.List {
-		id := out.Id(p.Names[0].Name)
+		var name string
+
+		if len(p.Names) == 0 {
+			name = nt.Get("")
+		} else {
+			name = nt.Get(p.Names[0].Name)
+		}
+
+		id := out.Id(name)
 
 		switch pt := p.Type.(type) {
 		case *ast.Ident:
@@ -39,7 +49,17 @@ func generateArgs(
 	out *jen.Group,
 	m *ast.Field,
 ) {
+	nt := nameTable{prefix: "i"}
+
 	for _, p := range m.Type.(*ast.FuncType).Params.List {
-		out.Id(p.Names[0].Name)
+		var name string
+
+		if len(p.Names) == 0 {
+			name = nt.Get("")
+		} else {
+			name = nt.Get(p.Names[0].Name)
+		}
+
+		out.Id(name)
 	}
 }

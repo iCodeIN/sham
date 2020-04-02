@@ -11,6 +11,10 @@ type InputParam struct {
 	// ScalarFunc is an implementation of the Scalar() method.
 	// If it is non-nil, it takes precedence over x.InputParam.Scalar().
 	ScalarFunc func(int)
+
+	// AnonFunc is an implementation of the Anon() method.
+	// If it is non-nil, it takes precedence over x.InputParam.Anon().
+	AnonFunc func(int)
 }
 
 func (x *InputParam) Scalar(v int) {
@@ -20,5 +24,15 @@ func (x *InputParam) Scalar(v int) {
 
 	if x.InputParam != nil {
 		x.InputParam.Scalar(v)
+	}
+}
+
+func (x *InputParam) Anon(i0 int) {
+	if x.AnonFunc != nil {
+		x.AnonFunc(i0)
+	}
+
+	if x.InputParam != nil {
+		x.InputParam.Anon(i0)
 	}
 }
