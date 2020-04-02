@@ -12,23 +12,30 @@ func generateField(
 	t *ast.TypeSpec,
 	m *ast.Field,
 ) {
-	n := fieldName(m)
+	ftype := m.Type.(*ast.FuncType)
+	methodName := m.Names[0].Name
+	stubName := fieldName(m)
 
 	out.Commentf(
 		"%s is an implementation of the %s() method.",
-		n,
-		m.Names[0].Name,
+		stubName,
+		methodName,
 	)
 	out.Commentf(
 		"If it is non-nil, it takes precedence over x.%s.%s().",
 		t.Name.Name,
-		m.Names[0].Name,
+		methodName,
 	)
-	out.Id(n).
+	out.Id(stubName).
 		Func().
 		ParamsFunc(
 			func(grp *jen.Group) {
-				generateSignature(grp, m)
+				generateSignature(grp, ftype.Params)
+			},
+		).
+		ListFunc(
+			func(grp *jen.Group) {
+				generateSignature(grp, ftype.Results)
 			},
 		)
 }
