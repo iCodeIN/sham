@@ -113,16 +113,18 @@ func (v *visitor) visitTypeSpec(t *ast.TypeSpec) (bool, error) {
 	v.Out.
 		Type().
 		Id(t.Name.Name).
-		StructFunc(func(grp *jen.Group) {
-			grp.Qual(v.InPackagePath, t.Name.Name)
+		StructFunc(
+			func(grp *jen.Group) {
+				grp.Qual(v.InPackagePath, t.Name.Name)
 
-			for _, m := range iface.Methods.List {
-				if m.Names[0].IsExported() {
-					grp.Line()
-					generateField(grp, t, m)
+				for _, m := range iface.Methods.List {
+					if m.Names[0].IsExported() {
+						grp.Line()
+						generateField(grp, t, m)
+					}
 				}
-			}
-		})
+			},
+		)
 
 	for _, m := range iface.Methods.List {
 		if m.Names[0].IsExported() {

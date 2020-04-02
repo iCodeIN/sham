@@ -12,9 +12,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
-
-	_ "github.com/jmalloc/sham/generator/testdata/inputs"  // force test-cache stale if inputs change
-	_ "github.com/jmalloc/sham/generator/testdata/outputs" // force test-cache to be stale if expected outputs change.
 )
 
 var _ = Describe("func Generate()", func() {
