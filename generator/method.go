@@ -62,11 +62,11 @@ func generateMethod(
 				)
 			},
 		).
-		ListFunc(
-			func(grp *jen.Group) {
-				generateOutputParams(grp, funcType.Results)
-			},
-		).
+		// ListFunc(
+		// 	func(grp *jen.Group) {
+		// 		generateOutputParams(grp, funcType.Results)
+		// 	},
+		// ).
 		BlockFunc(
 			func(grp *jen.Group) {
 				grp.If(jen.Id(receiverName).Dot(stubName).Op("!=").Nil()).

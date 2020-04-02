@@ -6,30 +6,32 @@ import inputs "github.com/jmalloc/sham/generator/testdata/inputs"
 
 // InputParam is a test implementation of the inputs.InputParam interface.
 type InputParam struct {
+	// InputParam is the default implementation of the interface.
+	// If it is nil, each method will return an error (or panic).
 	inputs.InputParam
 
 	// AnonFunc is an implementation of the Anon() method.
-	// If it is non-nil, it takes precedence over the embedded implementation.
+	// If it is non-nil, it takes precedence over the embedded InputParam interface.
 	AnonFunc func(int)
 
 	// SingleFunc is an implementation of the Single() method.
-	// If it is non-nil, it takes precedence over the embedded implementation.
+	// If it is non-nil, it takes precedence over the embedded InputParam interface.
 	SingleFunc func(int)
 
 	// MultipleFunc is an implementation of the Multiple() method.
-	// If it is non-nil, it takes precedence over the embedded implementation.
+	// If it is non-nil, it takes precedence over the embedded InputParam interface.
 	MultipleFunc func(int, float64)
 
 	// MultipleNamesFunc is an implementation of the MultipleNames() method.
-	// If it is non-nil, it takes precedence over the embedded implementation.
+	// If it is non-nil, it takes precedence over the embedded InputParam interface.
 	MultipleNamesFunc func(int, int)
 
 	// VariadicFunc is an implementation of the Variadic() method.
-	// If it is non-nil, it takes precedence over the embedded implementation.
+	// If it is non-nil, it takes precedence over the embedded InputParam interface.
 	VariadicFunc func(...int)
 
 	// ReceiverCollisionFunc is an implementation of the ReceiverCollision() method.
-	// If it is non-nil, it takes precedence over the embedded implementation.
+	// If it is non-nil, it takes precedence over the embedded InputParam interface.
 	ReceiverCollisionFunc func(int)
 }
 

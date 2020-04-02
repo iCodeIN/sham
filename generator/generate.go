@@ -103,19 +103,30 @@ func (v *visitor) visitTypeSpec(t *ast.TypeSpec) (bool, error) {
 		return false, nil
 	}
 
+	var (
+		typeName = t.Name.Name
+	)
+
 	v.Out.Commentf(
 		"%s is a test implementation of the %s.%s interface.",
-		t.Name.Name,
+		typeName,
 		v.InPackageName,
-		t.Name.Name,
+		typeName,
 	)
 
 	v.Out.
 		Type().
-		Id(t.Name.Name).
+		Id(typeName).
 		StructFunc(
 			func(grp *jen.Group) {
-				grp.Qual(v.InPackagePath, t.Name.Name)
+				grp.Commentf(
+					"%s is the default implementation of the interface.",
+					typeName,
+				)
+				grp.Comment(
+					"If it is nil, each method will return an error (or panic).",
+				)
+				grp.Qual(v.InPackagePath, typeName)
 
 				for _, m := range iface.Methods.List {
 					if m.Names[0].IsExported() {

@@ -6,14 +6,16 @@ import inputs "github.com/jmalloc/sham/generator/testdata/inputs"
 
 // OutputParam is a test implementation of the inputs.OutputParam interface.
 type OutputParam struct {
+	// OutputParam is the default implementation of the interface.
+	// If it is nil, each method will return an error (or panic).
 	inputs.OutputParam
 
 	// AnonFunc is an implementation of the Anon() method.
-	// If it is non-nil, it takes precedence over x.OutputParam.Anon().
+	// If it is non-nil, it takes precedence over the embedded inputs.OutputParam implementation.
 	AnonFunc func() int
 
 	// SingleFunc is an implementation of the Single() method.
-	// If it is non-nil, it takes precedence over x.OutputParam.Single().
+	// If it is non-nil, it takes precedence over the embedded inputs.OutputParam implementation.
 	SingleFunc func() int
 }
 

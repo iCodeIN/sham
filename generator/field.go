@@ -14,6 +14,7 @@ func generateField(
 ) {
 	var (
 		funcType   = m.Type.(*ast.FuncType)
+		typeName   = t.Name.Name
 		methodName = m.Names[0].Name
 		stubName   = fieldName(m)
 	)
@@ -23,8 +24,9 @@ func generateField(
 		stubName,
 		methodName,
 	)
-	out.Comment(
-		"If it is non-nil, it takes precedence over the embedded implementation.",
+	out.Commentf(
+		"If it is non-nil, it takes precedence over the embedded %s interface.",
+		typeName,
 	)
 	out.Id(stubName).
 		Func().

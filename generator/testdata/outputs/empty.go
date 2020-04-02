@@ -6,5 +6,7 @@ import inputs "github.com/jmalloc/sham/generator/testdata/inputs"
 
 // Empty is a test implementation of the inputs.Empty interface.
 type Empty struct {
+	// Empty is the default implementation of the interface.
+	// If it is nil, each method will return an error (or panic).
 	inputs.Empty
 }
