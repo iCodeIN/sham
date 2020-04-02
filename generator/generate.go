@@ -7,12 +7,9 @@ import (
 	"go/token"
 	"io"
 	"io/ioutil"
-	"os"
-	"path"
 	"path/filepath"
 
 	"github.com/dave/jennifer/jen"
-	"golang.org/x/mod/modfile"
 )
 
 // Generate produces fakes of interfaces parsed from r.
@@ -26,7 +23,7 @@ func Generate(src, pkg string, w io.Writer) error {
 		return err
 	}
 
-	v.InPackagePath, err = findPackagePath(src)
+	v.InPackagePath, err = packagePath(src)
 	if err != nil {
 		return err
 	}
@@ -42,7 +39,7 @@ func Generate(src, pkg string, w io.Writer) error {
 		&fs,
 		src,
 		data,
-		parser.ParseComments|parser.AllErrors,
+		parser.AllErrors,
 	)
 	if err != nil {
 		return err
@@ -101,7 +98,7 @@ func (v *visitor) visitTypeSpec(spec *ast.TypeSpec) (bool, error) {
 		return false, nil
 	}
 
-	iface, ok := spec.Type.(*ast.InterfaceType)
+	_, ok := spec.Type.(*ast.InterfaceType)
 	if !ok {
 		return false, nil
 	}
@@ -117,91 +114,68 @@ func (v *visitor) visitTypeSpec(spec *ast.TypeSpec) (bool, error) {
 		Type().
 		Id(spec.Name.Name).
 		StructFunc(func(grp *jen.Group) {
-			for _, m := range iface.Methods.List {
-				name := m.Names[0]
-				if !name.IsExported() {
-					continue
-				}
+			// for _, m := range iface.Methods.List {
+			// 	name := m.Names[0]
+			// 	if !name.IsExported() {
+			// 		continue
+			// 	}
 
-				grp.Id(stubName(m)).
-					Func().
-					ParamsFunc(func(grp *jen.Group) {
-					})
-			}
+			// 	grp.Id(stubName(m)).
+			// 		Func().
+			// 		ParamsFunc(func(grp *jen.Group) {
+			// 		})
+			// }
 		})
 
-	for _, m := range iface.Methods.List {
-		name := m.Names[0]
-		if !name.IsExported() {
-			continue
-		}
+	v.Out.
+		Commentf(
+			"Assert that %s implements %s.%s.",
+			spec.Name.Name,
+			v.InPackageName,
+			spec.Name.Name,
+		)
 
-		v.Out.
-			Func().
-			Params(
-				jen.Id("x").
-					Id("*" + spec.Name.Name),
-			).
-			Id(name.Name).
-			ParamsFunc(func(grp *jen.Group) {
-			}).
-			BlockFunc(func(grp *jen.Group) {
-				grp.
-					If(
-						jen.Id("x").Dot(stubName(m)).Op("!=").Nil(),
-					).
-					Block(
-						jen.Id("x").Dot(stubName(m)).Call(),
-					)
-			})
-	}
+	v.Out.
+		Var().
+		Id("_").
+		Qual(v.InPackagePath, spec.Name.Name).
+		Op("=").
+		Parens(
+			jen.Id("*" + spec.Name.Name),
+		).
+		Parens(
+			jen.Nil(),
+		)
+
+	// for _, m := range iface.Methods.List {
+	// 	name := m.Names[0]
+	// 	if !name.IsExported() {
+	// 		continue
+	// 	}
+
+	// 	v.Out.
+	// 		Func().
+	// 		Params(
+	// 			jen.Id("x").
+	// 				Id("*" + spec.Name.Name),
+	// 		).
+	// 		Id(name.Name).
+	// 		ParamsFunc(func(grp *jen.Group) {
+	// 		}).
+	// 		BlockFunc(func(grp *jen.Group) {
+	// 			grp.
+	// 				If(
+	// 					jen.Id("x").Dot(stubName(m)).Op("!=").Nil(),
+	// 				).
+	// 				Block(
+	// 					jen.Id("x").Dot(stubName(m)).Call(),
+	// 				)
+	// 		})
+	// }
 
 	return false, nil
 }
 
 func stubName(n *ast.Field) string {
-	return n.Names[0].Name + "Func"
-}
-
-func findModFile(file string) (string, string, error) {
-	dir := file
-	pkg := ""
-
-	for dir != "/" {
-		dir = path.Dir(dir)
-		mf := path.Join(dir, "go.mod")
-
-		info, err := os.Stat(mf)
-
-		if err != nil {
-			if !os.IsNotExist(err) {
-				return "", "", err
-			}
-		} else if !info.IsDir() {
-			return mf, pkg, nil
-		}
-
-		pkg = path.Join(path.Base(dir), pkg)
-	}
-
-	return "", "", fmt.Errorf("could not find go.mod for %s", file)
-}
-
-func findPackagePath(file string) (string, error) {
-	mf, pkg, err := findModFile(file)
-	if err != nil {
-		return "", err
-	}
-
-	data, err := ioutil.ReadFile(mf)
-	if err != nil {
-		return "", err
-	}
-
-	mod := modfile.ModulePath(data)
-	if mod == "" {
-		return "", fmt.Errorf("missing or malformed module path in %s", mod)
-	}
-
-	return path.Join(mod, pkg), nil
+	return n.Names[0].Name + "Stub"
 }
