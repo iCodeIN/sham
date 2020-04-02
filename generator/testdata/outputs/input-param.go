@@ -8,13 +8,13 @@ import inputs "github.com/jmalloc/sham/generator/testdata/inputs"
 type InputParam struct {
 	inputs.InputParam
 
-	// ScalarFunc is an implementation of the Scalar() method.
-	// If it is non-nil, it takes precedence over x.InputParam.Scalar().
-	ScalarFunc func(int)
-
 	// AnonFunc is an implementation of the Anon() method.
 	// If it is non-nil, it takes precedence over x.InputParam.Anon().
 	AnonFunc func(int)
+
+	// SingleFunc is an implementation of the Single() method.
+	// If it is non-nil, it takes precedence over x.InputParam.Single().
+	SingleFunc func(int)
 
 	// MultipleFunc is an implementation of the Multiple() method.
 	// If it is non-nil, it takes precedence over x.InputParam.Multiple().
@@ -29,16 +29,6 @@ type InputParam struct {
 	VariadicFunc func(...int)
 }
 
-func (x *InputParam) Scalar(v int) {
-	if x.ScalarFunc != nil {
-		x.ScalarFunc(v)
-	}
-
-	if x.InputParam != nil {
-		x.InputParam.Scalar(v)
-	}
-}
-
 func (x *InputParam) Anon(i0 int) {
 	if x.AnonFunc != nil {
 		x.AnonFunc(i0)
@@ -46,6 +36,16 @@ func (x *InputParam) Anon(i0 int) {
 
 	if x.InputParam != nil {
 		x.InputParam.Anon(i0)
+	}
+}
+
+func (x *InputParam) Single(v int) {
+	if x.SingleFunc != nil {
+		x.SingleFunc(v)
+	}
+
+	if x.InputParam != nil {
+		x.InputParam.Single(v)
 	}
 }
 
