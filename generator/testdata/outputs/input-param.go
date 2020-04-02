@@ -19,6 +19,10 @@ type InputParam struct {
 	// MultipleFunc is an implementation of the Multiple() method.
 	// If it is non-nil, it takes precedence over x.InputParam.Multiple().
 	MultipleFunc func(int, float64)
+
+	// MultipleNamesFunc is an implementation of the MultipleNames() method.
+	// If it is non-nil, it takes precedence over x.InputParam.MultipleNames().
+	MultipleNamesFunc func(int, int)
 }
 
 func (x *InputParam) Scalar(v int) {
@@ -48,5 +52,15 @@ func (x *InputParam) Multiple(a int, b float64) {
 
 	if x.InputParam != nil {
 		x.InputParam.Multiple(a, b)
+	}
+}
+
+func (x *InputParam) MultipleNames(a, b int) {
+	if x.MultipleNamesFunc != nil {
+		x.MultipleNamesFunc(a, b)
+	}
+
+	if x.InputParam != nil {
+		x.InputParam.MultipleNames(a, b)
 	}
 }

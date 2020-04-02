@@ -14,19 +14,22 @@ func generateParams(
 	nt := nameTable{prefix: "i"}
 
 	for _, p := range m.Type.(*ast.FuncType).Params.List {
-		var name string
-
-		if len(p.Names) == 0 {
-			name = nt.Get("")
-		} else {
-			name = nt.Get(p.Names[0].Name)
+		names := p.Names
+		if len(names) == 0 {
+			names = []*ast.Ident{{Name: ""}}
 		}
 
-		id := out.Id(name)
+		list := out.ListFunc(
+			func(grp *jen.Group) {
+				for _, name := range names {
+					grp.Id(nt.Get(name.Name))
+				}
+			},
+		)
 
 		switch pt := p.Type.(type) {
 		case *ast.Ident:
-			id.Id(pt.Name)
+			list.Id(pt.Name)
 		}
 	}
 }
@@ -37,9 +40,16 @@ func generateSignature(
 	m *ast.Field,
 ) {
 	for _, p := range m.Type.(*ast.FuncType).Params.List {
-		switch pt := p.Type.(type) {
-		case *ast.Ident:
-			out.Id(pt.Name)
+		n := len(p.Names)
+		if n == 0 {
+			n = 1
+		}
+
+		for i := 0; i < n; i++ {
+			switch pt := p.Type.(type) {
+			case *ast.Ident:
+				out.Id(pt.Name)
+			}
 		}
 	}
 }
@@ -52,14 +62,13 @@ func generateArgs(
 	nt := nameTable{prefix: "i"}
 
 	for _, p := range m.Type.(*ast.FuncType).Params.List {
-		var name string
-
-		if len(p.Names) == 0 {
-			name = nt.Get("")
-		} else {
-			name = nt.Get(p.Names[0].Name)
+		names := p.Names
+		if len(names) == 0 {
+			names = []*ast.Ident{{Name: ""}}
 		}
 
-		out.Id(name)
+		for _, name := range names {
+			out.Id(nt.Get(name.Name))
+		}
 	}
 }
