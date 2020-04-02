@@ -9,33 +9,33 @@ type InputParam struct {
 	inputs.InputParam
 
 	// AnonFunc is an implementation of the Anon() method.
-	// If it is non-nil, it takes precedence over x.InputParam.Anon().
+	// If it is non-nil, it takes precedence over the embedded implementation.
 	AnonFunc func(int)
 
 	// SingleFunc is an implementation of the Single() method.
-	// If it is non-nil, it takes precedence over x.InputParam.Single().
+	// If it is non-nil, it takes precedence over the embedded implementation.
 	SingleFunc func(int)
 
 	// MultipleFunc is an implementation of the Multiple() method.
-	// If it is non-nil, it takes precedence over x.InputParam.Multiple().
+	// If it is non-nil, it takes precedence over the embedded implementation.
 	MultipleFunc func(int, float64)
 
 	// MultipleNamesFunc is an implementation of the MultipleNames() method.
-	// If it is non-nil, it takes precedence over x.InputParam.MultipleNames().
+	// If it is non-nil, it takes precedence over the embedded implementation.
 	MultipleNamesFunc func(int, int)
 
 	// VariadicFunc is an implementation of the Variadic() method.
-	// If it is non-nil, it takes precedence over x.InputParam.Variadic().
+	// If it is non-nil, it takes precedence over the embedded implementation.
 	VariadicFunc func(...int)
 }
 
-func (x *InputParam) Anon(i0 int) {
+func (x *InputParam) Anon(_0 int) {
 	if x.AnonFunc != nil {
-		x.AnonFunc(i0)
+		x.AnonFunc(_0)
 	}
 
 	if x.InputParam != nil {
-		x.InputParam.Anon(i0)
+		x.InputParam.Anon(_0)
 	}
 }
 

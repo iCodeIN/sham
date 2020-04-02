@@ -9,7 +9,7 @@ type Nullary struct {
 	inputs.Nullary
 
 	// MethodFunc is an implementation of the Method() method.
-	// If it is non-nil, it takes precedence over x.Nullary.Method().
+	// If it is non-nil, it takes precedence over the embedded implementation.
 	MethodFunc func()
 }
 

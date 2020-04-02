@@ -24,25 +24,32 @@ func newParamType(
 
 // generateInputParams generates an input parameter list.
 func generateInputParams(
+	variableNames *nameTable,
+	anonNames map[int]string,
 	out *jen.Group,
 	list *ast.FieldList,
 ) {
-	if list == nil {
+	if list == nil || len(list.List) == 0 {
 		return
 	}
 
-	nt := nameTable{prefix: "i"}
-
-	for _, p := range list.List {
+	for i, p := range list.List {
 		names := p.Names
 		if len(names) == 0 {
-			names = []*ast.Ident{{Name: ""}}
+			n := variableNames.Get("_")
+			anonNames[i] = n
+
+			names = []*ast.Ident{
+				{
+					Name: n,
+				},
+			}
 		}
 
 		out.ListFunc(
 			func(grp *jen.Group) {
 				for _, name := range names {
-					grp.Id(nt.Get(name.Name))
+					grp.Id(name.Name)
 				}
 			},
 		).Add(
@@ -60,26 +67,23 @@ func generateOutputParams(
 		return
 	}
 
-	anon := true
 	for _, p := range list.List {
-		if len(p.Names) > 0 {
-			anon = false
-			break
+		names := p.Names
+		if len(names) == 0 {
+			generateSignature(out, list)
+			return
 		}
-	}
 
-	if anon {
-		generateSignature(
-			out,
-			list,
+		out.ListFunc(
+			func(grp *jen.Group) {
+				for _, name := range names {
+					grp.Id(name.Name)
+				}
+			},
+		).Add(
+			newParamType(p.Type),
 		)
-
-		return
 	}
-
-	// dapper.Print(list)
-
-	panic("ni")
 }
 
 // generateSignature generates a parameter list with no variable names.
@@ -87,7 +91,7 @@ func generateSignature(
 	out *jen.Group,
 	list *ast.FieldList,
 ) {
-	if list == nil {
+	if list == nil || len(list.List) == 0 {
 		return
 	}
 
@@ -105,26 +109,29 @@ func generateSignature(
 
 // generateArgs generates an argument list.
 func generateArgs(
+	anonNames map[int]string,
 	out *jen.Group,
 	list *ast.FieldList,
 ) {
-	if list == nil {
+	if list == nil || len(list.List) == 0 {
 		return
 	}
 
-	nt := nameTable{prefix: "i"}
-
-	for _, p := range list.List {
+	for i, p := range list.List {
 		names := p.Names
 		if len(names) == 0 {
-			names = []*ast.Ident{{Name: ""}}
+			names = []*ast.Ident{
+				{
+					Name: anonNames[i],
+				},
+			}
 		}
 
 		if _, ok := p.Type.(*ast.Ellipsis); ok {
-			out.Id(nt.Get(names[0].Name)).Op("...")
+			out.Id(names[0].Name).Op("...")
 		} else {
 			for _, name := range names {
-				out.Id(nt.Get(name.Name))
+				out.Id(name.Name)
 			}
 		}
 	}

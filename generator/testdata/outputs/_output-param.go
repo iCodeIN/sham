@@ -11,6 +11,10 @@ type OutputParam struct {
 	// AnonFunc is an implementation of the Anon() method.
 	// If it is non-nil, it takes precedence over x.OutputParam.Anon().
 	AnonFunc func() int
+
+	// SingleFunc is an implementation of the Single() method.
+	// If it is non-nil, it takes precedence over x.OutputParam.Single().
+	SingleFunc func() int
 }
 
 func (x *OutputParam) Anon() int {
@@ -23,4 +27,16 @@ func (x *OutputParam) Anon() int {
 	}
 
 	panic("Anon() has no implementation, set the OutputParam or AnonFunc field")
+}
+
+func (x *OutputParam) Single() (a int) {
+	if x.SingleFunc != nil {
+		return x.SingleFunc()
+	}
+
+	if x.OutputParam != nil {
+		return x.OutputParam.Single()
+	}
+
+	panic("Single() has no implementation, set the OutputParam or SingleFunc field")
 }

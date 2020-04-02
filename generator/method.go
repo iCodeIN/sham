@@ -13,13 +13,16 @@ func generateMethod(
 	t *ast.TypeSpec,
 	m *ast.Field,
 ) {
-	ftype := m.Type.(*ast.FuncType)
-	structName := t.Name.Name
-	methodName := m.Names[0].Name
-	stubName := fieldName(m)
-
-	hasReturns := ftype.Results != nil &&
-		len(ftype.Results.List) > 0
+	var (
+		funcType      = m.Type.(*ast.FuncType)
+		structName    = t.Name.Name
+		methodName    = m.Names[0].Name
+		stubName      = fieldName(m)
+		variableNames = newNameTable(funcType)
+		anonNames     = map[int]string{}
+		hasReturns    = funcType.Results != nil &&
+			len(funcType.Results.List) > 0
+	)
 
 	generateCall := func(grp *jen.Group, fn jen.Code) {
 		var stmt *jen.Statement
@@ -33,8 +36,9 @@ func generateMethod(
 		stmt.CallFunc(
 			func(grp *jen.Group) {
 				generateArgs(
+					anonNames,
 					grp,
-					ftype.Params,
+					funcType.Params,
 				)
 			},
 		)
@@ -49,14 +53,16 @@ func generateMethod(
 		ParamsFunc(
 			func(grp *jen.Group) {
 				generateInputParams(
+					variableNames,
+					anonNames,
 					grp,
-					ftype.Params,
+					funcType.Params,
 				)
 			},
 		).
 		ListFunc(
 			func(grp *jen.Group) {
-				generateSignature(grp, ftype.Results)
+				generateOutputParams(grp, funcType.Results)
 			},
 		).
 		BlockFunc(
