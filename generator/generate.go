@@ -117,8 +117,7 @@ func (v *visitor) visitTypeSpec(t *ast.TypeSpec) (bool, error) {
 			grp.Qual(v.InPackagePath, t.Name.Name)
 
 			for _, m := range iface.Methods.List {
-				name := m.Names[0]
-				if name.IsExported() {
+				if m.Names[0].IsExported() {
 					grp.Line()
 					generateField(grp, t, m)
 				}
@@ -126,31 +125,9 @@ func (v *visitor) visitTypeSpec(t *ast.TypeSpec) (bool, error) {
 		})
 
 	for _, m := range iface.Methods.List {
-		name := m.Names[0]
-		if !name.IsExported() {
-			continue
+		if m.Names[0].IsExported() {
+			generateMethod(v.Out, t, m)
 		}
-
-		v.Out.
-			Func().
-			Params(
-				jen.Id("x").
-					Id("*" + t.Name.Name),
-			).
-			Id(name.Name).
-			ParamsFunc(func(grp *jen.Group) {
-			}).
-			BlockFunc(func(grp *jen.Group) {
-				grp.If(jen.Id("x").Dot(fieldName(m)).Op("!=").Nil()).
-					Block(
-						jen.Id("x").Dot(fieldName(m)).Call(),
-					)
-				grp.Line()
-				grp.If(jen.Id("x").Dot(t.Name.Name).Op("!=").Nil()).
-					Block(
-						jen.Id("x").Dot(t.Name.Name).Dot(name.Name).Call(),
-					)
-			})
 	}
 
 	return false, nil
