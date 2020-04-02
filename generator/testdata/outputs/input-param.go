@@ -23,6 +23,10 @@ type InputParam struct {
 	// MultipleNamesFunc is an implementation of the MultipleNames() method.
 	// If it is non-nil, it takes precedence over x.InputParam.MultipleNames().
 	MultipleNamesFunc func(int, int)
+
+	// VariadicFunc is an implementation of the Variadic() method.
+	// If it is non-nil, it takes precedence over x.InputParam.Variadic().
+	VariadicFunc func(...int)
 }
 
 func (x *InputParam) Scalar(v int) {
@@ -62,5 +66,15 @@ func (x *InputParam) MultipleNames(a, b int) {
 
 	if x.InputParam != nil {
 		x.InputParam.MultipleNames(a, b)
+	}
+}
+
+func (x *InputParam) Variadic(args ...int) {
+	if x.VariadicFunc != nil {
+		x.VariadicFunc(args...)
+	}
+
+	if x.InputParam != nil {
+		x.InputParam.Variadic(args...)
 	}
 }

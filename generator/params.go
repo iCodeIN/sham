@@ -1,10 +1,26 @@
 package generator
 
 import (
+	"fmt"
 	"go/ast"
 
 	"github.com/dave/jennifer/jen"
 )
+
+func newParamType(
+	n ast.Node,
+) jen.Code {
+	switch pt := n.(type) {
+	case *ast.Ident:
+		return jen.Id(pt.Name)
+	case *ast.Ellipsis:
+		return jen.Op("...").Add(
+			newParamType(pt.Elt),
+		)
+	}
+
+	panic(fmt.Sprintf("unsupported: %T", n))
+}
 
 // generateParams generates an parameter list.
 func generateParams(
@@ -19,18 +35,15 @@ func generateParams(
 			names = []*ast.Ident{{Name: ""}}
 		}
 
-		list := out.ListFunc(
+		out.ListFunc(
 			func(grp *jen.Group) {
 				for _, name := range names {
 					grp.Id(nt.Get(name.Name))
 				}
 			},
+		).Add(
+			newParamType(p.Type),
 		)
-
-		switch pt := p.Type.(type) {
-		case *ast.Ident:
-			list.Id(pt.Name)
-		}
 	}
 }
 
@@ -46,10 +59,7 @@ func generateSignature(
 		}
 
 		for i := 0; i < n; i++ {
-			switch pt := p.Type.(type) {
-			case *ast.Ident:
-				out.Id(pt.Name)
-			}
+			out.Add(newParamType(p.Type))
 		}
 	}
 }
@@ -67,8 +77,12 @@ func generateArgs(
 			names = []*ast.Ident{{Name: ""}}
 		}
 
-		for _, name := range names {
-			out.Id(nt.Get(name.Name))
+		if _, ok := p.Type.(*ast.Ellipsis); ok {
+			out.Id(nt.Get(names[0].Name)).Op("...")
+		} else {
+			for _, name := range names {
+				out.Id(nt.Get(name.Name))
+			}
 		}
 	}
 }
