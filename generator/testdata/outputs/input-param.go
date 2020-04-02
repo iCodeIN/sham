@@ -13,7 +13,7 @@ type InputParam struct {
 
 	// AnonFunc is an implementation of the Anon() method.
 	// If it is non-nil, it takes precedence over the embedded InputParam interface.
-	AnonFunc func(int)
+	AnonFunc func(int, string)
 
 	// SingleFunc is an implementation of the Single() method.
 	// If it is non-nil, it takes precedence over the embedded InputParam interface.
@@ -21,77 +21,63 @@ type InputParam struct {
 
 	// MultipleFunc is an implementation of the Multiple() method.
 	// If it is non-nil, it takes precedence over the embedded InputParam interface.
-	MultipleFunc func(int, float64)
+	MultipleFunc func(int, string)
 
 	// MultipleNamesFunc is an implementation of the MultipleNames() method.
 	// If it is non-nil, it takes precedence over the embedded InputParam interface.
-	MultipleNamesFunc func(int, int, float64, float64)
+	MultipleNamesFunc func(int, int, string, string)
 
 	// VariadicFunc is an implementation of the Variadic() method.
 	// If it is non-nil, it takes precedence over the embedded InputParam interface.
 	VariadicFunc func(...int)
-
-	// ReceiverCollisionFunc is an implementation of the ReceiverCollision() method.
-	// If it is non-nil, it takes precedence over the embedded InputParam interface.
-	ReceiverCollisionFunc func(int)
 }
 
-func (x *InputParam) Anon(_0 int) {
-	if x.AnonFunc != nil {
-		x.AnonFunc(_0)
+func (stub *InputParam) Anon(arg0 int, arg1 string) {
+	if stub.AnonFunc != nil {
+		stub.AnonFunc(arg0, arg1)
 	}
 
-	if x.InputParam != nil {
-		x.InputParam.Anon(_0)
+	if stub.InputParam != nil {
+		stub.InputParam.Anon(arg0, arg1)
 	}
 }
 
-func (x *InputParam) Single(v int) {
-	if x.SingleFunc != nil {
-		x.SingleFunc(v)
+func (stub *InputParam) Single(v int) {
+	if stub.SingleFunc != nil {
+		stub.SingleFunc(v)
 	}
 
-	if x.InputParam != nil {
-		x.InputParam.Single(v)
-	}
-}
-
-func (x *InputParam) Multiple(a int, b float64) {
-	if x.MultipleFunc != nil {
-		x.MultipleFunc(a, b)
-	}
-
-	if x.InputParam != nil {
-		x.InputParam.Multiple(a, b)
+	if stub.InputParam != nil {
+		stub.InputParam.Single(v)
 	}
 }
 
-func (x *InputParam) MultipleNames(a, b int, c, d float64) {
-	if x.MultipleNamesFunc != nil {
-		x.MultipleNamesFunc(a, b, c, d)
+func (stub *InputParam) Multiple(a int, b string) {
+	if stub.MultipleFunc != nil {
+		stub.MultipleFunc(a, b)
 	}
 
-	if x.InputParam != nil {
-		x.InputParam.MultipleNames(a, b, c, d)
-	}
-}
-
-func (x *InputParam) Variadic(args ...int) {
-	if x.VariadicFunc != nil {
-		x.VariadicFunc(args...)
-	}
-
-	if x.InputParam != nil {
-		x.InputParam.Variadic(args...)
+	if stub.InputParam != nil {
+		stub.InputParam.Multiple(a, b)
 	}
 }
 
-func (x0 *InputParam) ReceiverCollision(x int) {
-	if x0.ReceiverCollisionFunc != nil {
-		x0.ReceiverCollisionFunc(x)
+func (stub *InputParam) MultipleNames(a, b int, c, d string) {
+	if stub.MultipleNamesFunc != nil {
+		stub.MultipleNamesFunc(a, b, c, d)
 	}
 
-	if x0.InputParam != nil {
-		x0.InputParam.ReceiverCollision(x)
+	if stub.InputParam != nil {
+		stub.InputParam.MultipleNames(a, b, c, d)
+	}
+}
+
+func (stub *InputParam) Variadic(args ...int) {
+	if stub.VariadicFunc != nil {
+		stub.VariadicFunc(args...)
+	}
+
+	if stub.InputParam != nil {
+		stub.InputParam.Variadic(args...)
 	}
 }

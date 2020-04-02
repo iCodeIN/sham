@@ -16,12 +16,12 @@ type Nullary struct {
 	MethodFunc func()
 }
 
-func (x *Nullary) Method() {
-	if x.MethodFunc != nil {
-		x.MethodFunc()
+func (stub *Nullary) Method() {
+	if stub.MethodFunc != nil {
+		stub.MethodFunc()
 	}
 
-	if x.Nullary != nil {
-		x.Nullary.Method()
+	if stub.Nullary != nil {
+		stub.Nullary.Method()
 	}
 }

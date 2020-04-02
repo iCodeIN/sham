@@ -13,7 +13,7 @@ type OutputParam struct {
 
 	// AnonFunc is an implementation of the Anon() method.
 	// If it is non-nil, it takes precedence over the embedded OutputParam interface.
-	AnonFunc func() int
+	AnonFunc func() (int, string)
 
 	// SingleFunc is an implementation of the Single() method.
 	// If it is non-nil, it takes precedence over the embedded OutputParam interface.
@@ -21,73 +21,57 @@ type OutputParam struct {
 
 	// MultipleFunc is an implementation of the Multiple() method.
 	// If it is non-nil, it takes precedence over the embedded OutputParam interface.
-	MultipleFunc func() (int, float64)
+	MultipleFunc func() (int, string)
 
 	// MultipleNamesFunc is an implementation of the MultipleNames() method.
 	// If it is non-nil, it takes precedence over the embedded OutputParam interface.
-	MultipleNamesFunc func() (int, int, float64, float64)
-
-	// ReceiverCollisionFunc is an implementation of the ReceiverCollision() method.
-	// If it is non-nil, it takes precedence over the embedded OutputParam interface.
-	ReceiverCollisionFunc func() int
+	MultipleNamesFunc func() (int, int, string, string)
 }
 
-func (x *OutputParam) Anon() int {
-	if x.AnonFunc != nil {
-		return x.AnonFunc()
+func (stub *OutputParam) Anon() (int, string) {
+	if stub.AnonFunc != nil {
+		return stub.AnonFunc()
 	}
 
-	if x.OutputParam != nil {
-		return x.OutputParam.Anon()
+	if stub.OutputParam != nil {
+		return stub.OutputParam.Anon()
 	}
 
 	panic("Anon() has no implementation, set the OutputParam or AnonFunc field")
 }
 
-func (x *OutputParam) Single() (a int) {
-	if x.SingleFunc != nil {
-		return x.SingleFunc()
+func (stub *OutputParam) Single() (a int) {
+	if stub.SingleFunc != nil {
+		return stub.SingleFunc()
 	}
 
-	if x.OutputParam != nil {
-		return x.OutputParam.Single()
+	if stub.OutputParam != nil {
+		return stub.OutputParam.Single()
 	}
 
 	panic("Single() has no implementation, set the OutputParam or SingleFunc field")
 }
 
-func (x *OutputParam) Multiple() (a int, b float64) {
-	if x.MultipleFunc != nil {
-		return x.MultipleFunc()
+func (stub *OutputParam) Multiple() (a int, b string) {
+	if stub.MultipleFunc != nil {
+		return stub.MultipleFunc()
 	}
 
-	if x.OutputParam != nil {
-		return x.OutputParam.Multiple()
+	if stub.OutputParam != nil {
+		return stub.OutputParam.Multiple()
 	}
 
 	panic("Multiple() has no implementation, set the OutputParam or MultipleFunc field")
 }
 
-func (x *OutputParam) MultipleNames() (a, b int, c, d float64) {
-	if x.MultipleNamesFunc != nil {
-		return x.MultipleNamesFunc()
+func (stub *OutputParam) MultipleNames() (a, b int, c, d string) {
+	if stub.MultipleNamesFunc != nil {
+		return stub.MultipleNamesFunc()
 	}
 
-	if x.OutputParam != nil {
-		return x.OutputParam.MultipleNames()
+	if stub.OutputParam != nil {
+		return stub.OutputParam.MultipleNames()
 	}
 
 	panic("MultipleNames() has no implementation, set the OutputParam or MultipleNamesFunc field")
-}
-
-func (x0 *OutputParam) ReceiverCollision() (x int) {
-	if x0.ReceiverCollisionFunc != nil {
-		return x0.ReceiverCollisionFunc()
-	}
-
-	if x0.OutputParam != nil {
-		return x0.OutputParam.ReceiverCollision()
-	}
-
-	panic("ReceiverCollision() has no implementation, set the OutputParam or ReceiverCollisionFunc field")
 }
