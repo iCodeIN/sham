@@ -68,21 +68,23 @@ func generateOutputParams(
 	}
 
 	for _, p := range list.List {
-		names := p.Names
-		if len(names) == 0 {
-			generateSignature(out, list)
-			return
+		if len(p.Names) == 0 {
+			out.Add(
+				newParamType(p.Type),
+			)
+		} else {
+			out.
+				ListFunc(
+					func(grp *jen.Group) {
+						for _, name := range p.Names {
+							grp.Id(name.Name)
+						}
+					},
+				).
+				Add(
+					newParamType(p.Type),
+				)
 		}
-
-		out.ListFunc(
-			func(grp *jen.Group) {
-				for _, name := range names {
-					grp.Id(name.Name)
-				}
-			},
-		).Add(
-			newParamType(p.Type),
-		)
 	}
 }
 

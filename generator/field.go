@@ -35,7 +35,7 @@ func generateField(
 				generateSignature(grp, funcType.Params)
 			},
 		).
-		ListFunc(
+		ParamsFunc(
 			func(grp *jen.Group) {
 				generateSignature(grp, funcType.Results)
 			},

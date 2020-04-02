@@ -20,17 +20,20 @@ func generateMethod(
 		stubName      = fieldName(m)
 		variableNames = newNameTable(funcType)
 		anonNames     = map[int]string{}
-		hasReturns    = funcType.Results != nil &&
-			len(funcType.Results.List) > 0
+		numReturns    = 0
 	)
+
+	if funcType.Results != nil {
+		numReturns = len(funcType.Results.List)
+	}
 
 	generateCall := func(grp *jen.Group, fn jen.Code) {
 		var stmt *jen.Statement
 
-		if hasReturns {
-			stmt = grp.Return().Add(fn)
-		} else {
+		if numReturns == 0 {
 			stmt = grp.Add(fn)
+		} else {
+			stmt = grp.Return().Add(fn)
 		}
 
 		stmt.CallFunc(
@@ -62,11 +65,14 @@ func generateMethod(
 				)
 			},
 		).
-		// ListFunc(
-		// 	func(grp *jen.Group) {
-		// 		generateOutputParams(grp, funcType.Results)
-		// 	},
-		// ).
+		ParamsFunc(
+			func(grp *jen.Group) {
+				generateOutputParams(
+					grp,
+					funcType.Results,
+				)
+			},
+		).
 		BlockFunc(
 			func(grp *jen.Group) {
 				grp.If(jen.Id(receiverName).Dot(stubName).Op("!=").Nil()).
@@ -91,7 +97,7 @@ func generateMethod(
 						},
 					)
 
-				if hasReturns {
+				if numReturns != 0 {
 					grp.Line()
 
 					grp.Panic(
