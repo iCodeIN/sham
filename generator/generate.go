@@ -114,6 +114,7 @@ func (v *visitor) visitTypeSpec(spec *ast.TypeSpec) (bool, error) {
 		Type().
 		Id(spec.Name.Name).
 		StructFunc(func(grp *jen.Group) {
+			grp.Qual(v.InPackagePath, spec.Name.Name)
 			// for _, m := range iface.Methods.List {
 			// 	name := m.Names[0]
 			// 	if !name.IsExported() {
@@ -126,26 +127,6 @@ func (v *visitor) visitTypeSpec(spec *ast.TypeSpec) (bool, error) {
 			// 		})
 			// }
 		})
-
-	v.Out.
-		Commentf(
-			"Assert that %s implements %s.%s.",
-			spec.Name.Name,
-			v.InPackageName,
-			spec.Name.Name,
-		)
-
-	v.Out.
-		Var().
-		Id("_").
-		Qual(v.InPackagePath, spec.Name.Name).
-		Op("=").
-		Parens(
-			jen.Id("*" + spec.Name.Name),
-		).
-		Parens(
-			jen.Nil(),
-		)
 
 	// for _, m := range iface.Methods.List {
 	// 	name := m.Names[0]
