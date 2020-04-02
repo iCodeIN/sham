@@ -34,8 +34,8 @@ func newNameTable(t *ast.FuncType) *nameTable {
 	return nt
 }
 
-// Get obtains a variable name.
-func (nt *nameTable) Get(prefix string) string {
+// GetNumbered obtains a variable name that always has a numbered suffix.
+func (nt *nameTable) GetNumbered(prefix string) string {
 	count := 0
 
 	for {
@@ -46,6 +46,24 @@ func (nt *nameTable) Get(prefix string) string {
 			return candidate
 		}
 
+		count++
+	}
+}
+
+// Get obtains a variable name, only adding a numbered suffix if there is a
+// collision.
+func (nt *nameTable) Get(prefix string) string {
+	count := 0
+	candidate := prefix
+
+	for {
+
+		if _, ok := nt.used[candidate]; !ok {
+			nt.used[candidate] = struct{}{}
+			return candidate
+		}
+
+		candidate = fmt.Sprintf("%s%d", prefix, count)
 		count++
 	}
 }

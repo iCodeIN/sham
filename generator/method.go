@@ -44,9 +44,11 @@ func generateMethod(
 		)
 	}
 
+	receiverName := variableNames.Get("x")
+
 	out.Func().
 		Params(
-			jen.Id("x").
+			jen.Id(receiverName).
 				Id("*" + structName),
 		).
 		Id(methodName).
@@ -67,24 +69,24 @@ func generateMethod(
 		).
 		BlockFunc(
 			func(grp *jen.Group) {
-				grp.If(jen.Id("x").Dot(stubName).Op("!=").Nil()).
+				grp.If(jen.Id(receiverName).Dot(stubName).Op("!=").Nil()).
 					BlockFunc(
 						func(grp *jen.Group) {
 							generateCall(
 								grp,
-								jen.Id("x").Dot(stubName),
+								jen.Id(receiverName).Dot(stubName),
 							)
 						},
 					)
 
 				grp.Line()
 
-				grp.If(jen.Id("x").Dot(structName).Op("!=").Nil()).
+				grp.If(jen.Id(receiverName).Dot(structName).Op("!=").Nil()).
 					BlockFunc(
 						func(grp *jen.Group) {
 							generateCall(
 								grp,
-								jen.Id("x").Dot(structName).Dot(methodName),
+								jen.Id(receiverName).Dot(structName).Dot(methodName),
 							)
 						},
 					)

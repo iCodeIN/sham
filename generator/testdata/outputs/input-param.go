@@ -27,6 +27,10 @@ type InputParam struct {
 	// VariadicFunc is an implementation of the Variadic() method.
 	// If it is non-nil, it takes precedence over the embedded implementation.
 	VariadicFunc func(...int)
+
+	// ReceiverCollisionFunc is an implementation of the ReceiverCollision() method.
+	// If it is non-nil, it takes precedence over the embedded implementation.
+	ReceiverCollisionFunc func(int)
 }
 
 func (x *InputParam) Anon(_0 int) {
@@ -76,5 +80,15 @@ func (x *InputParam) Variadic(args ...int) {
 
 	if x.InputParam != nil {
 		x.InputParam.Variadic(args...)
+	}
+}
+
+func (x0 *InputParam) ReceiverCollision(x int) {
+	if x0.ReceiverCollisionFunc != nil {
+		x0.ReceiverCollisionFunc(x)
+	}
+
+	if x0.InputParam != nil {
+		x0.InputParam.ReceiverCollision(x)
 	}
 }

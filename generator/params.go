@@ -36,7 +36,7 @@ func generateInputParams(
 	for i, p := range list.List {
 		names := p.Names
 		if len(names) == 0 {
-			n := variableNames.Get("_")
+			n := variableNames.GetNumbered("_")
 			anonNames[i] = n
 
 			names = []*ast.Ident{
