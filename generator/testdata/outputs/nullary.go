@@ -8,7 +8,7 @@ import inputs "github.com/jmalloc/sham/generator/testdata/inputs"
 type Nullary struct {
 	inputs.Nullary
 
-	// MethodFunc is a stub for the Method() method.
+	// MethodFunc is an implementation of the Method() method.
 	// If it is non-nil, it takes precedence over x.Nullary.Method().
 	MethodFunc func()
 }

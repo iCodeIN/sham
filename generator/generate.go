@@ -93,52 +93,35 @@ func (v *visitor) visitFile(n *ast.File) (bool, error) {
 	return true, nil
 }
 
-func (v *visitor) visitTypeSpec(spec *ast.TypeSpec) (bool, error) {
-	if !spec.Name.IsExported() {
+func (v *visitor) visitTypeSpec(t *ast.TypeSpec) (bool, error) {
+	if !t.Name.IsExported() {
 		return false, nil
 	}
 
-	iface, ok := spec.Type.(*ast.InterfaceType)
+	iface, ok := t.Type.(*ast.InterfaceType)
 	if !ok {
 		return false, nil
 	}
 
 	v.Out.Commentf(
 		"%s is a test implementation of the %s.%s interface.",
-		spec.Name.Name,
+		t.Name.Name,
 		v.InPackageName,
-		spec.Name.Name,
+		t.Name.Name,
 	)
 
 	v.Out.
 		Type().
-		Id(spec.Name.Name).
+		Id(t.Name.Name).
 		StructFunc(func(grp *jen.Group) {
-			grp.Qual(v.InPackagePath, spec.Name.Name)
+			grp.Qual(v.InPackagePath, t.Name.Name)
 
 			for _, m := range iface.Methods.List {
 				name := m.Names[0]
-				if !name.IsExported() {
-					continue
+				if name.IsExported() {
+					grp.Line()
+					generateField(grp, t, m)
 				}
-
-				n := stubName(m)
-
-				grp.Line()
-				grp.Commentf(
-					"%s is a stub for the %s() method.",
-					n,
-					name.Name,
-				)
-				grp.Commentf(
-					"If it is non-nil, it takes precedence over x.%s.%s().",
-					spec.Name.Name,
-					name.Name,
-				)
-				grp.Id(n).
-					Func().
-					ParamsFunc(func(grp *jen.Group) {
-					})
 			}
 		})
 
@@ -152,27 +135,23 @@ func (v *visitor) visitTypeSpec(spec *ast.TypeSpec) (bool, error) {
 			Func().
 			Params(
 				jen.Id("x").
-					Id("*" + spec.Name.Name),
+					Id("*" + t.Name.Name),
 			).
 			Id(name.Name).
 			ParamsFunc(func(grp *jen.Group) {
 			}).
 			BlockFunc(func(grp *jen.Group) {
-				grp.If(jen.Id("x").Dot(stubName(m)).Op("!=").Nil()).
+				grp.If(jen.Id("x").Dot(fieldName(m)).Op("!=").Nil()).
 					Block(
-						jen.Id("x").Dot(stubName(m)).Call(),
+						jen.Id("x").Dot(fieldName(m)).Call(),
 					)
 				grp.Line()
-				grp.If(jen.Id("x").Dot(spec.Name.Name).Op("!=").Nil()).
+				grp.If(jen.Id("x").Dot(t.Name.Name).Op("!=").Nil()).
 					Block(
-						jen.Id("x").Dot(spec.Name.Name).Dot(name.Name).Call(),
+						jen.Id("x").Dot(t.Name.Name).Dot(name.Name).Call(),
 					)
 			})
 	}
 
 	return false, nil
-}
-
-func stubName(n *ast.Field) string {
-	return n.Names[0].Name + "Func"
 }
