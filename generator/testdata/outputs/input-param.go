@@ -15,6 +15,10 @@ type InputParam struct {
 	// AnonFunc is an implementation of the Anon() method.
 	// If it is non-nil, it takes precedence over x.InputParam.Anon().
 	AnonFunc func(int)
+
+	// MultipleFunc is an implementation of the Multiple() method.
+	// If it is non-nil, it takes precedence over x.InputParam.Multiple().
+	MultipleFunc func(int, float64)
 }
 
 func (x *InputParam) Scalar(v int) {
@@ -34,5 +38,15 @@ func (x *InputParam) Anon(i0 int) {
 
 	if x.InputParam != nil {
 		x.InputParam.Anon(i0)
+	}
+}
+
+func (x *InputParam) Multiple(a int, b float64) {
+	if x.MultipleFunc != nil {
+		x.MultipleFunc(a, b)
+	}
+
+	if x.InputParam != nil {
+		x.InputParam.Multiple(a, b)
 	}
 }
