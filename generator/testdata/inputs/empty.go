@@ -1,4 +1,4 @@
-package somepackage
+package inputs
 
 type Empty interface {
 }

@@ -15,7 +15,7 @@ import (
 )
 
 var _ = Describe("func Generate()", func() {
-	files, err := ioutil.ReadDir("testdata")
+	files, err := ioutil.ReadDir("testdata/inputs")
 	if err != nil {
 		panic(err)
 	}
@@ -29,38 +29,30 @@ var _ = Describe("func Generate()", func() {
 			continue
 		}
 
-		if !strings.HasSuffix(fn, ".in") {
-			continue
-		}
-
-		name := strings.TrimSuffix(fn, ".in")
-
 		entries = append(
 			entries,
 			Entry(
-				name,
-				path.Join("testdata", fn),
-				path.Join("testdata", name+".out"),
+				strings.TrimSuffix(fn, ".in"),
+				path.Join("testdata/inputs/", fn),
+				path.Join("testdata/outputs/", fn),
 			),
 		)
 	}
 
 	DescribeTable(
 		"it produces the correct output",
-		func(input, output string) {
-			in, err := os.Open(input)
+		func(src, expect string) {
+			w, err := ioutil.TempFile("", "sham")
 			Expect(err).ShouldNot(HaveOccurred())
+			defer os.Remove(w.Name())
 
-			out, err := ioutil.TempFile("", "sham")
-			Expect(err).ShouldNot(HaveOccurred())
-			defer os.Remove(out.Name())
-
-			err = generator.Generate(in, out)
+			err = generator.Generate(src, "outputs", w)
 			Expect(err).ShouldNot(HaveOccurred())
 
 			var diff bytes.Buffer
-			cmd := exec.Command("diff", "-u", output, out.Name())
+			cmd := exec.Command("diff", "-u", expect, w.Name())
 			cmd.Stdout = &diff
+			cmd.Stderr = &diff
 
 			err = cmd.Run()
 
